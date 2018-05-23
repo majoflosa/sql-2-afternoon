@@ -1,0 +1,120 @@
+= = = = = = = = = = = = = JOINS = = = = = = = = = = = = = 
+
+-- Get all invoices where the UnitPrice on the InvoiceLine is greater than $0.99.
+SELECT * FROM invoice
+	JOIN invoiceline ON invoice.invoiceid = invoiceline.invoiceid
+    WHERE invoiceline.unitprice > 0.99;
+
+-- Get the InvoiceDate, customer FirstName and LastName, and Total from all invoices.
+SELECT i.invoicedate, i.total, c.firstname, c.lastname
+	FROM invoice i
+    JOIN customer c ON i.customerid = c.customerid;
+
+-- Get the customer FirstName and LastName and the support rep's FirstName and LastName from all customers.
+SELECT c.firstname, c.lastname, e.firstname, e.lastname
+	FROM customer c
+    JOIN employee e ON c.supportrepid = e.employeeid;
+
+-- Get the album Title and the artist Name from all albums.
+SELECT al.title, ar.name
+	FROM album al
+    JOIN artist ar ON al.artistid = ar.artistid;
+
+-- Get all PlaylistTrack TrackIds where the playlist Name is Music.
+SELECT pt.trackid
+	FROM playlistTrack pt
+    JOIN playlist p ON pt.playlistid = p.playlistid
+    WHERE p.name = 'Music';
+
+-- Get all Track Names for PlaylistId 5.
+SELECT t.name
+	FROM track t
+    JOIN playlisttrack pt ON t.trackid = pt.trackid
+    WHERE pt.playlistid = 5;
+
+-- Get all Track Names and the playlist Name that they're on ( 2 joins ).
+SELECT t.name, p.name
+	FROM track t
+    JOIN playlisttrack pt ON t.trackid = pt.trackid
+    JOIN playlist p ON p.playlistid = pt.playlistid;
+
+-- Get all Track Names and Album Titles that are the genre "Alternative" ( 2 joins ).
+SELECT t.name, a.title
+	FROM track t
+    JOIN album a ON t.albumid = a.albumid
+    JOIN genre g ON t.genreid = g.genreid
+    WHERE g.name = 'Alternative';
+
+-- Get all tracks on the playlist(s) called Music and show their name, genre name, 
+-- album name, and artist name.
+SELECT t.name, g.name, al.title, ar.name
+	FROM track t
+    JOIN genre g ON t.genreid = g.genreid
+    JOIN album al ON al.albumid = t.albumid
+    JOIN artist ar ON ar.artistid = al.artistid
+    JOIN playlisttrack pt ON pt.playlistid = t.trackid
+    JOIN playlist p ON p.playlistid = pt.playlistid
+    WHERE p.name = 'Music';
+
+= = = = = = = = = = = = = NESTED QUERIES = = = = = = = = = = = = = 
+
+-- Get all invoices where the UnitPrice on the InvoiceLine is greater than $0.99.
+ SELECT * FROM invoice 
+ 	WHERE invoiceid 
+    IN ( 
+      SELECT invoiceid 
+      FROM invoiceline 
+      WHERE unitprice > 0.99
+    );
+
+-- Get all Playlist Tracks where the playlist name is Music.
+SELECT * FROM playlisttrack
+	WHERE playlistid 
+    IN ( 
+      SELECT playlistid FROM playlist WHERE name = 'Music'
+    );
+
+-- Get all Track names for PlaylistId 5.
+SELECT name FROM track
+	WHERE trackid
+    IN (
+      SELECT trackid FROM playlisttrack WHERE playlistid = 5
+    );
+
+-- Get all tracks where the Genre is Comedy.
+SELECT * FROM track
+	WHERE genreid
+    IN (
+      SELECT genreid FROM genre WHERE name = 'Comedy'
+    );
+
+-- Get all tracks where the Album is Fireball.
+SELECT * FROM track
+	WHERE albumid
+    IN (
+      SELECT albumid FROM album WHERE title = 'Fireball'
+    );
+
+-- Get all tracks for the artist Queen ( 2 nested subqueries ).
+SELECT * FROM track
+	WHERE albumid
+    IN (
+      SELECT albumid FROM album 
+      WHERE artistid
+      IN (
+        SELECT artistid FROM artist WHERE name = 'Queen'
+      )
+    );
+
+= = = = = = = = = = = = = GROUP BY = = = = = = = = = = = = = 
+
+-- Find a count of how many tracks there are per genre. Display the genre name with the count.
+SELECT COUNT(*), genre.name FROM track
+	JOIN genre ON track.genreid = genre.genreid
+	GROUP BY genreid;
+* ambiguous column name: genreid
+
+
+
+
+
