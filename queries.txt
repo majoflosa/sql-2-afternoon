@@ -111,8 +111,38 @@ SELECT * FROM track
 -- Find a count of how many tracks there are per genre. Display the genre name with the count.
 SELECT COUNT(*), genre.name FROM track
 	JOIN genre ON track.genreid = genre.genreid
-	GROUP BY genreid;
-* ambiguous column name: genreid
+	GROUP BY track.genreid;
+
+-- Find a count of how many tracks are the "Pop" genre and how many
+-- tracks are the "Rock" genre.
+SELECT COUNT(*) FROM track
+	JOIN genre ON genre.genreid = track.genreid
+    WHERE genre.name = "Pop"
+    OR genre.name = "Rock"
+    GROUP BY track.genreid;
+    
+SELECT COUNT(*) FROM track
+	WHERE genreid
+    IN ( SELECT genreid FROM genre
+        WHERE name = "Pop"
+        OR name = "Rock"
+    )
+    GROUP BY genreid;
+
+-- Find a list of all artists and how many albums they have.
+SELECT ar.name, COUNT(al.albumid)
+	FROM artist ar
+    JOIN album al ON al.artistid = ar.artistid
+    GROUP BY al.artistid;
+
+
+= = = = = = = = = = = = = DISTINCT = = = = = = = = = = = = = 
+
+-- From the Track table find a unique list of all Composers.
+SELECT DISTINCT composer FROM track;
+
+
+
 
 
 
