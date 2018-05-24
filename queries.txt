@@ -106,6 +106,32 @@ SELECT * FROM track
       )
     );
 
+= = = = = = = = = = = = = UPDATING ROWS = = = = = = = = = = = = = 
+
+-- Find all customers with fax numbers and set those numbers to null.
+UPDATE customer
+	SET fax = null
+    WHERE fax IS NOT NULL;
+
+-- Find all customers with no company (null) and set their company to "Self".
+UPDATE customer SET company = "Self" WHERE company IS NULL;
+
+-- Find the customer Julia Barnett and change her last name to Thompson.
+UPDATE customer SET lastname = "Thompson" 
+	WHERE firstname = "Julia"
+    AND lastname = "Barnett";
+
+-- Find the customer with this email luisrojas@yahoo.cl and change 
+-- his support rep to 4.
+UPDATE customer SET supportrepid = 4 WHERE email = 'luisrojas@yahoo.cl';
+
+-- Find all tracks that are the genre Metal and have no composer. 
+-- Set the composer to "The darkness around us".
+UPDATE track SET composer = 'The darkness around us'
+	WHERE genreid = (SELECT genreid FROM genre WHERE name = 'Metal')
+    AND composer IS null;
+
+
 = = = = = = = = = = = = = GROUP BY = = = = = = = = = = = = = 
 
 -- Find a count of how many tracks there are per genre. Display the genre name with the count.
@@ -141,8 +167,82 @@ SELECT ar.name, COUNT(al.albumid)
 -- From the Track table find a unique list of all Composers.
 SELECT DISTINCT composer FROM track;
 
+-- From the Invoice table find a unique list of all BillingPostalCodes.
+SELECT DISTINCT billingpostalcode FROM invoice;
+
+-- From the Customer table find a unique list of all Companys.
+SELECT DISTINCT company FROM customer;
 
 
+= = = = = = = = = = = = = DELETE ROWS = = = = = = = = = = = = = 
+
+-- Delete all "bronze" entries from the table.
+DELETE FROM practice_delete WHERE type = "bronze";
+
+-- Delete all "silver" entries from the table.
+DELETE FROM practice_delete WHERE type = "silver";
+
+-- Delete all entries whose value is equal to 150.
+DELETE FROM practice_delete WHERE value = 150;
+
+
+= = = = = = = = = = = = = ECOMMERCE DB = = = = = = = = = = = = = 
+CREATE TABLE users (
+  id INTEGER AUTO INCREMENT PRIMARY KEY ,
+  name VARCHAR(200),
+  email VARCHAR(200)
+);
+
+CREATE TABLE products (
+	id INTEGER AUTO INCREMENT PRIMARY KEY,
+    name VARCHAR(200),
+    price FLOAT
+);
+
+CREATE TABLE orders (
+  id INTEGER AUTO INCREMENT PRIMARY KEY,
+  prod_id INTEGER REFERENCES products(id)
+);
+  
+INSERT INTO users (id, name, email) VALUES (3, 'Jill', 'jill@msn.com');
+
+INSERT INTO products (id, name, price) 
+	VALUES (3, 'orange', 0.45);
+
+INSERT INTO orders (id, prod_id) 
+	VALUES (3, 1);
+
+-- Get all products for the first order.
+SELECT p.name 
+	FROM products p
+    JOIN orders o ON p.id = o.prod_id
+    WHERE o.id = 1;
+
+-- Get all orders.
+SELECT * FROM orders;
+
+-- Get the total cost of an order ( sum the price of all products 
+-- on an order ).
+SELECT SUM(p.price) 
+	FROM products p
+	JOIN orders o ON o.prod_id = p.id
+    WHERE o.id = 3;
+
+-- Add a foreign key reference from Orders to Users.
+ALTER TABLE orders ADD COLUMN user_id REFERENCES users(id);
+
+-- Update the Orders table to link a user to each order.
+UPDATE orders SET user_id = 2 WHERE id = 1;
+UPDATE orders SET user_id = 3 WHERE id = 3;
+UPDATE orders SET user_id = 1 WHERE id = 2;
+
+-- Run queries against your data.
+-- Get all orders for a user.
+-- Get how many orders each user has.
+SELECT * FROM orders WHERE user_id = 3;
+SELECT COUNT(*) FROM orders WHERE user_id = 1;
+SELECT COUNT(*) FROM orders WHERE user_id = 2;
+SELECT COUNT(*) FROM orders WHERE user_id = 3;
 
 
 
